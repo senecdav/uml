@@ -1,1 +1,340 @@
-test
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="UML">
+	<meta name="author" content="Université de Rouen">
+	<link rel="shortcut icon" href="images/icon.png">
+    <title>Modeleur UML</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <!-- Layout -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Font awesome -->
+	<!--<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">-->
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+	.draggableStyle { 
+		width: 150px;
+		height: 150px;
+		padding: 0.5em;
+		z-index: 1;
+	}
+	.draggableStyle table tr:nth-child(2n) {
+		background: white;
+	}
+	.canvasContainer {
+		position: relative;
+		border: 1px solid #555;
+	}
+	canvas
+	{
+		padding: 0;
+		margin: 0;
+		background-color: white;
+		position: absolute;
+		z-index: 0;
+		/* control height and width in code to prevent stretching */
+	}
+	.canvasContainer{
+		width: 1000px;
+		height: 600px;
+		padding: 0;
+		margin: 0;
+	}
+	</style>
+</head>
+<body class="animated">
+	<script type="text/x-handlebars" data-template-name="diagram">	
+		<div class="canvasContainer draggable">
+			<div class="divCanvasClass"></div>
+			{{#view App.Canvas}}
+			{{/view}}
+		</div>
+	</script>
+	
+	<script type="text/x-handlebars" data-template-name="_navbar">
+		<div id="head-nav" class="navbar navbar-default">
+			<div class="container-fluid">
+				<div class="navbar-collapse">
+					<ul class="nav navbar-nav navbar-right user-nav">
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" > 
+								<span class="glyphicon glyphicon-user"></span> Anonyme<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a >Se connecter</a></li>
+								<li><a >Quitter</a></li>
+							</ul>
+						</li>
+						{{!-- {{render "lang" configuration}} --}}
+					</ul>		
+					<ul class="nav navbar-nav">
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" >
+								Fichier <b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a  {{action "createModalCreateProject"}}>Nouveau Projet</a></li>
+								<li><a {{action "createModalOpenProject" target="controllers.ProjectsOpen"}}>Ouvrir Projet</a></li>
+								<li><a {{action "sauvegardeProjet"}}>Sauvegarder Projet</a></li>
+								<li><a {{action ""}}>Sauvegarder Projet dans le serveur</a></li>
+								<li><a {{action "createModalSuppProject" target="controllers.Projects"}}>Supprimer des projets</a></li>
+								<li class="divider"></li>
+								<li><a {{action ""}}>Recharger l'application</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" >
+								Edition <b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a {{action "createModalCreateEntit"}}>Créer une entité</a></li>
+								<li><a {{action "createModalAddEntit"}}>Ajouter une entité</a></li>
+								<li><a {{action "createModalSuppEntitInDDC"}}>Supprimer une entité DDC</a></li>
+								<li><a {{action "createModalSuppEntit"}}>Supprimer une entité</a></li>
+								<li><a {{action "createModalCreateDDC"}}>Créer un diagramme</a></li>
+								<li><a {{action "createModalEditerEntite" target="controllers.EditerEntite"}}>Edite une entite</a></li>
+								<li><a {{action "createModalSuppDiag"}}>Supprimer DDC</a></li>
+								<li class="divider"></li>
+								<li><a >Chercher un diagramme</a></li>
+								<li><a >Chercher un fichier</a></li>
+								<li><a >Copier</a></li>
+								<li><a >Couper</a></li>
+								<li><a >Coller</a></li>
+								<li><a >Supprimer la selction</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a data-toggle="dropdown" class="dropdown-toggle" >
+								Affichage <b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a >X1</a></li>
+								<li><a >X2</a></li>
+								<li><a >X3</a></li>
+								<li><a >X5</a></li>
+								<li><a >X6</a></li>
+							</ul>
+						</li>
+						<li><a >Outils</a></li>
+						<li><a >Aide</a></li>
+					</ul>
+				</div><!--/.nav-collapse animate-collapse -->
+			</div>
+		</div>
+	</script>
+	
+	<script type="text/x-handlebars" data-template-name="create_entity">
+		<div class="content">
+			<form role="form">
+				<div class="form-group">
+					<label for="name">Nom de l'entité :</label>
+						{{input type="text" class="form-control" value=newName maxLength=50 placeholder="Entrez le nom de l'entité"}}
+				</div>
+				<div class="form-group">
+					<label for="type">Type :</label>
+						{{input type="text" class="form-control" value=newType maxLength=50 placeholder="Entrez le type de l'entité"}}
+				</div>
+			</form>
+		</div>
+	</script>
+		
+	<script type="text/x-handlebars" data-template-name="open_project">
+		<div class="content">
+			<table class="no-border hover">
+				<thead class="no-border">
+					<tr>
+						<th style="width:50%;">Nom</th>
+						<th>Date</th>
+						<th>Ouvrir</th>
+					</tr>
+				</thead>
+				<tbody class="no-border-y">
+					{{#each project in controller}}
+					<tr>
+						<td>{{projectName}}</td>
+						<td>{{date}}</td>
+						<td>{{input type="checkbox" checked=isSelected}}</td>
+					</tr>
+					{{/each}}
+				</tbody>
+			</table>						
+		</div>
+	</script>
+	
+		<script type="text/x-handlebars" data-template-name="editentity">
+		<div class="content">
+			<form role="form">
+				
+					{{#each object in controller}}
+					{{#bs-panel heading=name collapsible=true dismiss=true onClose=""}}
+						<div class="form-group">
+						<label for="name">Nom de l'entité :</label>
+							{{input type="text" class="form-control" value=name maxLength=50 placeholder="Entrez le nom de l'entité"}}
+						</div>
+						<div class="form-group">
+							<label for="type">Type :</label>
+								{{input type="text" class="form-control" value=type maxLength=50 placeholder="Entrez le type de l'entité"}}
+						</div>
+					{{/bs-panel}}
+					{{/each}}
+					<button {{action 'addField'}}>Ajouter une entité</button>
+				
+			</form>
+		</div>
+	</script>
+		
+	<script type="text/x-handlebars" data-template-name="delete_project">
+		<div class="content">
+			<table class="no-border hover">
+				<thead class="no-border">
+					<tr>
+						<th style="width:50%;">Nom</th>
+						<th>Date</th>
+						<th>Supprimer</th>
+					</tr>
+				</thead>
+				<tbody class="no-border-y">
+					{{#each project in controller}}
+					<tr>
+						<td>{{projectName}}</td>
+						<td>{{date}}</td>
+						<td>{{input type="checkbox" checked=isSelected}}</td>
+					</tr>
+					{{/each}}
+				</tbody>
+			</table>						
+		</div>
+	</script>
+
+    <script type="text/x-handlebars" data-template-name="_tree">
+        <div class="cl-sidebar">
+        <div class="cl-toggle"></div>
+        <div class="cl-navblock">
+            <div class="menu-space">
+                <div class="content">
+                    <div class="sidebar-logo">
+                        <div class="logo">
+                            <a href="index2.html"></a>
+                        </div>
+                    </div>
+                    <ul class="cl-vnavigation">
+                        <li class="active" >
+                            <a class = "defaultPointer">
+                                <span>
+                                {{ model.currentProject.projectName }}
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a >
+                                <i class="glyphicon glyphicon-list-alt"></i><span>Entités</span>
+                            </a>
+                            <ul class="sub-menu">
+                            	{{#each entity in model.currentProject.entitiesList}}
+                                	<li>
+                                		<a>
+                                			<div class="row">
+                                				<div class="col-md-8 ">{{entity.entityName}}</div>
+                                				<div class="col-md-1 colorPurple"><i class="glyphicon glyphicon-edit" {{action "createModalEditerEntite" entity target="controllers.EditerEntite" }}></i></div>
+                                				<div class="col-md-1 colorRed"><i class="glyphicon glyphicon-remove"></i></div>
+                                			</div>
+                                		</a>
+                                	</li>	
+                                {{/each}}
+                            </ul>
+                        </li>
+                        <li>
+                            <a >
+                                <i class="glyphicon glyphicon-th"></i><span>Diagramme de Classe</span>
+                            </a>
+                            <ul class="sub-menu">
+                                {{#each classDiagram in model.currentProject.diagrammeDeClasse}}
+                                	<li><a {{action "edit" ClassDiagram}}>{{classDiagram.diagramName}}</a></li>
+                                {{/each}}
+                            </ul>
+                        </li>                 
+                    </ul>
+                </div>
+            </div>
+            <div class="text-right collapse-button" style="padding:7px 9px;">
+                <button id="sidebar-collapse" class="btn btn-default" style="">
+                    <i style="color:#fff;" class="glyphicon glyphicon-chevron-left"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    </script>
+    
+    <script type="text/x-handlebars" data-template-name="canvas">
+		{{view App.Canvas}}
+	</script>
+    
+  <!-- Begin JavaScript -->
+     
+    <!-- Libraries -->
+
+    <script src="js/libs/jquery-1.10.2.js"></script> 
+    <script src="js/libs/jquery-ui-1.10.4/js/jquery-ui-1.10.4.js"></script>
+    <script src="js/libs/bootstrap.js"></script>
+    <script src="js/libs/handlebars-1.1.2.js"></script>
+    <script src="js/libs/ember-1.3.1.js"></script>
+    <script src="js/libs/ember-data.js"></script>
+    <script src="js/libs/i18n.js"></script>
+    <script src="js/libs/localstorage_adapter.js"></script>
+    <script src="js/libs/ember-bootstrap/bs-core.min.js"></script>
+    <script src="js/libs/ember-bootstrap/bs-alert.min.js"></script>
+    <script src="js/libs/ember-bootstrap/bs-button.min.js"></script>
+    <script src="js/libs/ember-bootstrap/bs-modal.min.js"></script>
+    <script src="js/libs/ember-bootstrap/bs-notifications.min.js"></script>
+    <script src="js/libs/ember-bootstrap/bs-basic.min.js"></script> 
+    
+    <!-- Outils -->
+    <script src="js/utilities.js"></script>
+    <!-- Application -->
+    <script src="js/app.js"></script>
+    <script src="js/app/core.js"></script>
+    <script src="js/app/init.js"></script>
+    <!-- Models -->
+    <script src="js/app/models/Actor.js"></script>
+    <script src="js/app/models/Attribute.js"></script>
+    <script src="js/app/models/Method.js"></script>
+    <script src="js/app/models/Parameter.js"></script>
+    <script src="js/app/models/Entity.js"></script>
+    <script src="js/app/models/EntityRender.js"></script>
+    <script src="js/app/models/Relation.js"></script>
+    <script src="js/app/models/Diagram.js"></script>
+    <script src="js/app/models/ClassDiagram.js"></script>
+    <script src="js/app/models/ObjectDiagram.js"></script>
+    <script src="js/app/models/SequenceDiagram.js"></script>
+    <script src="js/app/models/Project.js"></script>
+    <script src="js/app/models/Config.js"></script>
+    <!-- Controllers -->
+    <script src="js/app/controllers/controller.js"></script> 
+    <!-- Routes -->
+    <script src="js/router.js"></script>
+    <!-- Begin Templates -->
+    <script src="js/app/views/diagram.js"></script>
+    <script src="js/app/views/editEntity.js"></script>
+    <script src="js/app/templates/build/templates.js"></script>
+    <!-- End Templates -->
+    <!-- Tests -->
+    <!-- to activate the test runner, add the "?test" query string 		parameter -->
+    <script src="tests/runner.js"></script>
+    <script type="text/javascript" src="js/behaviour/core.js"></script>
+    <!-- End JavaScript -->
+    
+    
+    
+</body>
+</html>

@@ -1,0 +1,17 @@
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown"> 
+        <span class="glyphicon glyphicon-globe"></span> <!-- icon -->
+        {{selectedLang.longName}}
+        <b class="caret"></b> <!-- icon -->
+    </a>
+    <ul class="dropdown-menu">
+        <!-- <li><a {{action "selectLang" "en"}}>English</a></li> -->
+        {{#each}} 
+        {{#unless isDisabled}}
+            <li>
+                <a {{action "selectLang" shortName}}>{{longName}}</a>
+            </li>
+        {{/unless}}
+        {{/each}}
+    </ul>
+</li>

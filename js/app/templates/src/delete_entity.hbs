@@ -1,0 +1,29 @@
+<div class="content">
+    <table class="no-border hover">
+        <thead class="no-border">
+            <tr>
+                <th style="width:80%;">Nom</th>
+                <th>Supprimer</th>
+            </tr>
+        </thead>
+        <tbody class="no-border-y">
+            {{! {{#each entity in entities}} }}
+            <tr>
+                <td>                
+                    {{#bs-panel heading="test" collapsible=true dismiss=false open=false}}
+                    <p>
+                        Dependance1<br/>
+                        Dependance2<br/>
+                    </p>
+                    {{/bs-panel}}
+                </td>
+                <td>{{input type="checkbox" checked=isSelected}}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                </td>
+            </tr>
+            {{! {{/each}} }}
+        </tbody>
+    </table>						
+</div>

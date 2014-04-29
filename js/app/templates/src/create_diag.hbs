@@ -1,0 +1,15 @@
+<div class="content">
+    <form role="form">
+        <div class="form-group">
+            <label for="name">Nom du diagramme :</label>
+                {{input type="text" class="form-control" value=diagramName maxLength=50 placeholder="Entrez le nom du diagramme"}}
+        </div>
+        <div class="form-group">
+            {{view Ember.Select viewName="diagramTypeSelect"
+                    contentBinding="diagramType"
+                    prompt="Choisissez un type de diagramme"
+                    selectionBinding="selectedDiagramType"
+                    class="form-control"}}
+        </div>
+    </form>
+</div>

@@ -1,0 +1,20 @@
+<div class="content">
+    <table class="no-border hover">
+        <thead class="no-border">
+            <tr>
+                <th style="width:50%;">Nom</th>
+                <th>Type</th>
+                <th>Supprimer</th>
+            </tr>
+        </thead>
+        <tbody class="no-border-y">
+            {{#each diagram in project}}
+            <tr>
+                <td>{{diagram.name}}</td>
+                <td>{{diagram.type}}</td>
+                <td>{{input type="checkbox" checked=isSelected}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>						
+</div>

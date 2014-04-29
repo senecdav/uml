@@ -1,0 +1,13 @@
+<div id="cl-wrapper" style="opacity: 1; margin-left: 0px;">
+    {{partial 'tree' }}
+    <div class="container-fluid" id="pcont">
+        <!-- TOP NAVBAR -->
+        {{partial 'navbar'}}
+        <div class="cl-mcont">		
+            <div class="row">
+                {{outlet}}
+            </div>
+        </div>
+    </div>
+</div> 
+<!--{{partial 'footer'}}-->

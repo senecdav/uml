@@ -1,0 +1,18 @@
+<div class="content">
+    <table class="no-border hover">
+        <thead class="no-border">
+            <tr>
+                <th style="width:50%;">Nom</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody class="no-border-y">
+            {{#each itemController="projectList"}}
+            <tr {{action 'selectProject' project}} {{bind-attr class="isSelected:selectrow"}}>
+                <td>{{projectName}}</td>
+                <td>{{date}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>						
+</div>

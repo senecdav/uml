@@ -1,0 +1,4 @@
+Par souci de conformité, il est préférable de mettre les noms des fonctions et propriétés en anglais
+(aussi eventuellement les variables locales).
+
+

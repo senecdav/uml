@@ -1,0 +1,20 @@
+<div class="content">
+    <table class="no-border hover">
+        <thead class="no-border">
+            <tr>
+                <th style="width:50%;">Nom</th>
+                <th>Date</th>
+                <th>Supprimer</th>
+            </tr>
+        </thead>
+        <tbody class="no-border-y">
+            {{#each itemController="project"}}
+            <tr>
+                <td>{{projectName}}</td>
+                <td>{{date}}</td>
+                <td>{{input type="checkbox" checked=isSelected}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>						
+</div>

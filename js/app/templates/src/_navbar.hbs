@@ -1,0 +1,69 @@
+<div id="head-nav" class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-collapse">
+            <ul class="nav navbar-nav navbar-right user-nav">
+                <li class="dropdown">
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#"> 
+                        <span class="glyphicon glyphicon-user"></span> Anonyme<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Se connecter</a></li>
+                        <li><a href="#">Quitter</a></li>
+                    </ul>
+                </li>
+                {{!-- {{render "lang" configuration}} --}}
+            </ul>		
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        Fichier <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="" {{action "createModalCreateProject"}}>Nouveau Projet</a></li>
+                        <li><a {{action "createModalOpenProject"}}>Ouvrir Projet</a></li>
+                        <li><a {{action "sauvegardeProjet"}}>Sauvegarder Projet</a></li>
+                        <li><a {{action ""}}>Sauvegarder Projet dans le serveur</a></li>
+                        <li><a {{action "createModalSuppProject"}}>Supprimer le Projet</a></li>
+                        <li><a {{action ""}}>Actualiser</a></li>
+                        <li class="divider"></li>
+                        <li><a {{action ""}}>Quitter</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        Edition <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a {{action "createModalCreateEntit"}}>Créer une entité</a></li>
+                        <li><a {{action "createModalAddEntit"}}>Ajouter une entité</a></li>
+                        <li><a {{action "createModalSuppEntitInDDC"}}>Supprimer une entité DDC</a></li>
+                        <li><a {{action "createModalSuppEntit"}}>Supprimer une entité</a></li>
+                        <li><a {{action "createModalCreateDDC"}}>Créer un diagramme</a></li>
+                        <li><a {{action "createModalSuppDiag"}}>Supprimer DDC</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Chercher un diagramme</a></li>
+                        <li><a href="#">Chercher un fichier</a></li>
+                        <li><a href="#">Copier</a></li>
+                        <li><a href="#">Couper</a></li>
+                        <li><a href="#">Coller</a></li>
+                        <li><a href="#">Supprimer la selction</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        Affichage <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">X1</a></li>
+                        <li><a href="#">X2</a></li>
+                        <li><a href="#">X3</a></li>
+                        <li><a href="#">X5</a></li>
+                        <li><a href="#">X6</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Outils</a></li>
+                <li><a href="#">Aide</a></li>
+            </ul>
+        </div><!--/.nav-collapse animate-collapse -->
+    </div>
+</div>
