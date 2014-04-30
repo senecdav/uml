@@ -1,0 +1,9 @@
+CACHE MANIFEST
+# v.2014-04-28
+
+CACHE:
+index.html
+
+# On sauvegarde tout ce que l'on peux en ligne
+NETWORK:
+*
