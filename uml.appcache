@@ -1,9 +1,9 @@
 CACHE MANIFEST
 # v.2014-04-28
 
-CACHE:
 /index.html
 
+#libraries
 /js/libs/jquery-1.10.2.js
 /js/libs/jquery-ui-1.10.4/js/jquery-ui-1.10.4.js
 /js/libs/bootstrap.js
@@ -19,7 +19,30 @@ CACHE:
 /js/libs/ember-bootstrap/bs-notifications.min.js
 /js/libs/ember-bootstrap/bs-basic.min.js
 
+#outils
+/js/utilities.js
 
-# On sauvegarde tout ce que l'on peux en ligne
+#application
+/js/app.js
+/js/app/core.js
+/js/app/init.js
+
+#controller
+/js/app/controllers/controller.js
+
+#route
+js/router.js
+
+#style
+/css/style.css
+/css/bootstrap.css
+
+#images
+/images/logo.png
+/images/icon.png
+
+
+
 NETWORK:
-*
+
+FALLBACK:
