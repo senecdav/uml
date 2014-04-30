@@ -338,7 +338,7 @@
     
     <script type="text/javascript">
     
-    var appCache = window.applicationCache;
+    /*var appCache = window.applicationCache;
     appCache.update();
     console.log(appCache.status);
 	window.addEventListener('load', function(e) {
@@ -356,7 +356,7 @@
 			}
 		}, false);
 
-	}, false);
+	}, false);*/
 	
 	
     
