@@ -10,11 +10,11 @@
     <title>Modeleur UML</title>
    
     <script type="text/javascript">
+
+	var appCache = window.applicationCache;
     
 	console.log("debut");
 	console.log(window.applicationCache.status);
-	var appCache = window.applicationCache;
-
 	appCache.update(); // Attempt to update the user's cache.
 
 	if (appCache.status == window.applicationCache.UPDATEREADY) {
