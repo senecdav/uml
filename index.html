@@ -18,7 +18,8 @@
 	appCache.update(); // Attempt to update the user's cache.
 
 	if (appCache.status == window.applicationCache.UPDATEREADY) {
-	  appCache.swapCache();  // The fetch was successful, swap in the new cache.
+		console.log("UpdateReady");
+		appCache.swapCache();  // The fetch was successful, swap in the new cache.
 	}
 	console.log("milieu");
 	console.log(window.applicationCache.status);
@@ -29,7 +30,7 @@
 		window.applicationCache.addEventListener('updateready', function(e) {
 			if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
 				// Browser downloaded a new app cache.
-				if (confirm('A new version of this site is available. Load it?')) {
+				if (confirm('Nouvelle version disponible, recharger la page ?')) {
 					window.location.reload();
 				}
 			} else {
