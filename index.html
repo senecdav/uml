@@ -13,12 +13,13 @@
     
     var appCache = window.applicationCache;
     appCache.update();
-    console.log(appCache.status);
+	//console.log(appCache.status);
 	window.addEventListener('load', function(e) {
 
 		appCache.addEventListener('updateready', function(e) {
 		console.log("updateready");
 			if (appCache.status == appCache.UPDATEREADY) {
+			alert('found new version!');
 			// Browser downloaded a new app cache.
 				if (confirm('Une nouvelle version de l\'application est disponible, voulez vous l\'utiliser ?')) {
 					appCache.swapCache();
