@@ -13,7 +13,8 @@
     
     var appCache = window.applicationCache;
     appCache.update();
-	//console.log(appCache.status);
+	console.log("Allo ?");
+	console.log(appCache.status);
 	window.addEventListener('load', function(e) {
 
 		appCache.addEventListener('updateready', function(e) {
