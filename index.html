@@ -12,7 +12,7 @@
     <script type="text/javascript">
     
 	console.log("debut");
-	console.log(appCache.status);
+	console.log(window.applicationCache.status);
 	var appCache = window.applicationCache;
 
 	appCache.update(); // Attempt to update the user's cache.
@@ -21,7 +21,7 @@
 	  appCache.swapCache();  // The fetch was successful, swap in the new cache.
 	}
 	console.log("milieu");
-	console.log(appCache.status);
+	console.log(window.applicationCache.status);
 	
 	// Check if a new cache is available on page load.
 	window.addEventListener('load', function(e) {
@@ -39,7 +39,7 @@
 
 	}, false);
 	console.log("fin");
-    console.log(appCache.status);
+    console.log(window.applicationCache.status);
     </script>
     
     <!-- Bootstrap -->
