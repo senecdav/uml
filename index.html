@@ -12,7 +12,7 @@
     <script type="text/javascript">
     
     var appCache = window.applicationCache;
-    appCache.update();
+    //appCache.update();
 	console.log("Allo ?");
 	console.log(appCache.status);
 	window.addEventListener('load', function(e) {
@@ -264,24 +264,7 @@
                                 </span>
                             </a>
                         </li>
-                        <li>
-                            <a >
-                                <i class="glyphicon glyphicon-list-alt"></i><span>Entités</span>
-                            </a>
-                            <ul class="sub-menu">
-                            	{{#each entity in model.currentProject.entitiesList}}
-                                	<li>
-                                		<a>
-                                			<div class="row">
-                                				<div class="col-md-8 ">{{entity.entityName}}</div>
-                                				<div class="col-md-1 colorPurple"><i class="glyphicon glyphicon-edit" {{action "createModalEditerEntite" entity target="controllers.EditerEntite" }}></i></div>
-                                				<div class="col-md-1 colorRed"><i class="glyphicon glyphicon-remove"></i></div>
-                                			</div>
-                                		</a>
-                                	</li>	
-                                {{/each}}
-                            </ul>
-                        </li>
+
                         <li>
                             <a >
                                 <i class="glyphicon glyphicon-th"></i><span>Diagramme de Classe</span>
