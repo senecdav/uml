@@ -7,7 +7,17 @@ App.Attribute = DS.Model.extend({
 	isStatic: DS.attr('boolean'),
 	multiplicityMin: DS.attr('number'),
 	multiplicityMax: DS.attr('number'),
-	entity: DS.belongsTo('Entity')
+	entity: DS.belongsTo('Entity'),
+	
+	saveAttribute: function() {
+
+		this.save().then(function(){
+  	
+		}, function() {
+		
+		});
+		
+	}
 	
 });
 	

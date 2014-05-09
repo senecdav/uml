@@ -1,8 +1,58 @@
 // Liste des routes
 App.Router.map(function() {
-  this.route("diagram", { path: "/diagram" });
+  //this.route("diagram", { path: "/diagram" });
+  this.resource('diagrams');
+  this.resource('diagram', { path: '/diagram/:classdiagramid' });
 });
 
+App.DiagramRoute = Em.Route.extend({
+	model: function(params) {
+		return this.store.find('ClassDiagram', params.classdiagramid);
+	},
+	/*model: function() {
+		return {
+			entitiesList : [
+				{
+					id: "1",
+					entityName: "test",
+					entityType: "Interface",
+					attributesList: [
+					],
+					methodsList:[
+					],
+					relationsList:[
+						{
+							entityTarget: "2",
+							name: "implements",
+							type: "implements"
+						}
+					], 
+					entityRender:{
+							x: 100,
+							y: 100,
+							style: ""
+					}
+				},
+				{
+					id: "2",
+					entityName: "test2",
+					entityType: "Interface",
+					attributesList: [
+					],
+					methodsList:[
+					],
+					relationsList:[
+					], 
+					entityRender:{
+							x: 200,
+							y: 300,
+							style: ""
+					}
+				}
+			]
+		};
+	}*/
+});
 
 // Route par dÃ©faut
 App.ApplicationRoute = Em.Route.extend({

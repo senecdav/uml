@@ -1,7 +1,7 @@
 
 App.ApplicationController = Ember.Controller.extend(
 {
-	needs: ['Projects','ProjectsOpen', 'EditerEntite'],
+	needs: ['Projects','ProjectsOpen', 'EditerEntite', 'AjoutEntit'],
 	
 	config: function() {
 		var self = this; // Lien vers la route
@@ -30,7 +30,17 @@ App.ApplicationController = Ember.Controller.extend(
 	createProjectButtons: [Ember.Object.create({title: 'Creer Projet', clicked: 'creationProjet'})],
 	saveProjectButtons: [Ember.Object.create({title: 'Sauvegarder', clicked: "sauvegardeProjet"})],
 	createEntitButtons: [Ember.Object.create({title: 'Creer Entité', clicked: "creationEntite"})],
-	createDDCButtons: [Ember.Object.create({title: 'Création d un diagramme de classe', clicked: "creationDC"})],
+	createDDCButtons: [Ember.Object.create({title: 'Création d\'un diagramme de classe', clicked: "creationDC"})],
+
+	entityType: App.EntityType.toArray(),
+	selectedEntityType: '',
+
+	toDelete: [],
+
+	/*hasCurrentProject: function() {
+		 return this.get('model').get('currentProject') != null;
+	 }.property('hasCurrentProject'),*/
+
 
   actions: 
   {
@@ -46,12 +56,11 @@ App.ApplicationController = Ember.Controller.extend(
 	createModalCreateDDC: function() {Bootstrap.ModalManager.open('createDDCModal', 'Creer un diagramme de classe', 'create_diag', this.createDDCButtons, this);},
 
 
-
 //créer un projet
     creationProjet: function() 
     {
 	var nom = this.get('projectName'); //recuperation de la valeur du champ projectName
-	if(!nom.trim() || nom == "" || nom == " " || nom == "	")
+	if(!nom || !nom.trim() || nom.length > 50 )
 	{
 		this.set('projectName', '');
 		alert("nom de projet incorrect");
@@ -60,7 +69,8 @@ App.ApplicationController = Ember.Controller.extend(
 
 	// Create the new projet model
 	var project = this.store.createRecord('Project', {
-        projectName: nom
+        projectName: nom,
+	creationDate: new Date()
       });
 	
 	this.get("model").set("currentProject", project);
@@ -76,7 +86,19 @@ App.ApplicationController = Ember.Controller.extend(
     return Bootstrap.ModalManager.close('createProjectModal');
     },
     
+//quitter le projet
+    closeProject: function() 
 
+    {
+	if(this.get('model').get('currentProject') === null)
+		{
+			alert("Aucun projet n'est ouvert");
+		}
+
+	this.get('model').set('currentProject',null);
+	this.get("model").save();
+	alert("Projet quitter");
+    },
 
 //sauvegarder un projet
 	sauvegardeProjet: function()
@@ -87,9 +109,22 @@ App.ApplicationController = Ember.Controller.extend(
       			return Bootstrap.ModalManager.close('saveProjectModal');
 		}
 		var modelCourant = this.get('model');
-		modelCourant.save();
+		modelCourant.saveConfig();
 		var projetCourant = modelCourant.get("currentProject");
-		projetCourant.save();
+		//projetCourant.save();
+		
+		for (var i = 0; i < this.toDelete.get('length'); i++) {
+			this.toDelete[i].saveObject(true);
+			/*this.toDelete[i].get('attributesList').then(
+				function(attrs) {
+					for (var j = 0; j < attrs.get('length'); j++) {
+						attrs.objectAtContent(j).destroyRecord();
+					}
+					this.toDelete.clear();
+				}
+			);*/
+		}
+		this.toDelete.clear();
 
 		alert("Projet sauvegarder");
       		return Bootstrap.ModalManager.close('saveProjectModal');
@@ -97,29 +132,28 @@ App.ApplicationController = Ember.Controller.extend(
 	},
 
 //crée une entité
+
     creationEntite: function() 
     {
 	if(this.get('model').get('currentProject') === null)
 		{
 			alert("Aucun projet n'est ouvert");
 			this.set('newName', '');
-     			this.set('newType', '');
       			return Bootstrap.ModalManager.close('createEntitModal');
 		}
 
 	var nom = this.get('newName'); //recuperation de la valeur du champ newName
-	var type = this.get('newType'); //recuperation
+	var type = this.get('selectedEntityType'); //recuperation
 
-	if(!nom.trim() || nom == "" || nom == " " || nom == "	")
+	if(!nom ||!nom.trim() || nom.length > 50 )
 	{
 		this.set('newName', '');
-      		this.set('newType', '');
 		alert("nom d'entité incorrect");
    		return Bootstrap.ModalManager.close('createEntitModal');
 	}
 
       var nom = this.get('newName'); //recuperation de la valeur du champ newName
-      var type = this.get('newType'); //recuperation
+      var type = this.get('selectedEntityType'); //recuperation
 
       // Create the new entité model
       var entit = this.store.createRecord('Entity', {
@@ -127,13 +161,14 @@ App.ApplicationController = Ember.Controller.extend(
 	entityType: type
       });
 
-    	entit.save();
+    	//entit.save();
 
       // Clear text field
       	this.set('newName', '');
-      	this.set('newType', '');
-	this.get('model').get("currentProject").get('entitiesList').pushObject(entit);	
-	this.get('model').get("currentProject").save();
+	this.set('selectedEntityType', '');
+	this.get('model').get("currentProject").get('entitiesList').pushObject(entit);
+	this.get('model').saveConfig();	
+	//this.get('model').get("currentProject").save();
 	alert("Entité créée");
       	return Bootstrap.ModalManager.close('createEntitModal');
     },
@@ -146,15 +181,15 @@ App.ApplicationController = Ember.Controller.extend(
 	if(this.get('model').get('currentProject') === null)
 		{
 			alert("Aucun projet n'est ouvert");
-			this.set('newName', '');
+			this.set('diagramName', '');
       			return Bootstrap.ModalManager.close('createDDCModal');
 		}
 
-	var nom = this.get('newName');
+	var nom = this.get('diagramName');
+	this.set('diagramName', '');
 
-	if(!nom.trim() || nom == "" || nom == " " || nom == "	")
+	if(!nom || !nom.trim())
 	{
-		this.set('newName', '');
 		alert("nom de diagramme incorrect");
    		return Bootstrap.ModalManager.close('createDDCModal');
 	}
@@ -162,16 +197,49 @@ App.ApplicationController = Ember.Controller.extend(
 	var dc = this.store.createRecord('ClassDiagram', {
         diagramName: nom
       });
-
-	this.set('newName', '');
-
+	
+	dc.save();
+	
 	var modelCourant = this.get('model');
 	var projetCourant = modelCourant.get("currentProject");
 
 	projetCourant.get('diagrammeDeClasse').pushObject(dc);
+	this.get('model').saveConfig();
 	alert("Diagramme créé");
       	return Bootstrap.ModalManager.close('createDDCModal');
     },	
+    
+  reload: function()
+  	{
+  		location.reload();
+  	},
+//Suppression d'entité'
+  removeEntityFromProject: function(entity){
+  		if(entity === null) {
+  			return;
+  		}
+
+		this.get('model').get('currentProject').get('entitiesList').removeObject(entity);
+		this.get('model').get('currentProject').save();
+		this.get('model').save();
+		/*entity.deleteRecord();
+		entity.save();*/
+
+	},
+  
+  //Suppression de diagramme
+  removeDiagramFromProject: function(diagram){
+  		if(diagram === null) {
+  			return;
+  		}
+
+  		this.get('model').get('currentProject').get('diagrammeDeClasse').removeObject(diagram);
+		this.get('model').get('currentProject').save();
+		this.get('model').save();
+		diagram.deleteRecord();
+		diagram.save();
+  },
+  
 }
 });
 
@@ -182,26 +250,34 @@ App.ProjectsController = Ember.ArrayController.extend
 	itemController: 'project',
 	suppProjectButtons: [Ember.Object.create({title: 'Supprimer', clicked: "supprimerProjet"})],
 	projectName: '',
-	
+
 	actions:
 	{
-		createModalSuppProject: function() {
+		createModalSuppProject: function() 
+		{
 		this.set('content',this.store.find('Project'));
 		var self = this;
 		this.store.find('Config').then(
-			function(configs) {
+			function(configs) 
+			{
 				var config = configs.get('firstObject');
-				self.set('projectName', config.get('currentProject').get('projectName'));
+				if(config.get('currentProject') != null) 
+				{
+					self.set('projectName', config.get('currentProject').get('projectName'));
+				}
 			}
 		);
+
 		Bootstrap.ModalManager.open('suppProjectModal', 'Supprimer un projet', 'delete_project', this.suppProjectButtons,this);
-	},
+
+		},
 
 	supprimerProjet: function()
 	{
+		
 		var application = this.get('controllers.Application');
 		var cpt = 0;
-		
+	
 		for(var i=0;i<this.get('content').get('length');i++)
 		{
 			if (this.objectAtContent(i).isSelected)
@@ -212,8 +288,9 @@ App.ProjectsController = Ember.ArrayController.extend
 					alert("Vous ne pouvez pas supprimer le projet ouvert");
 					return Bootstrap.ModalManager.close('suppProjectModal');
 				}
-			this.objectAtContent(i).get('content').deleteRecord();
-			this.objectAtContent(i).get('content').save();
+				var projet = this.objectAtContent(i).get('content');
+				projet.deleteRecord();
+				projet.saveProject(true);
 			}
 		}
 		
@@ -222,8 +299,10 @@ App.ProjectsController = Ember.ArrayController.extend
 				var config = configs.get('firstObject');
 			}
 		);
-		if(cpt == 0) alert("Aucun projet selectionné");
-		else alert("Projet(s) supprimé(s)");
+		if(cpt == 0) { alert("Aucun projet selectionné");}
+		else {
+		alert("Projet(s) supprimé(s)");
+		}
     	  	return Bootstrap.ModalManager.close('suppProjectModal');
 	}
 
@@ -291,164 +370,228 @@ App.ProjectsOpenController = Ember.ArrayController.extend
 });
 
 
-//////////////////////////////////////////////////controleurs de suppression d'entité
-App.DeleteEntitController = Ember.ArrayController.extend
-({
-	needs: ['Application'],
-	itemController: 'entit',
-	suppEntitButtons: [Ember.Object.create({title: 'Supprimer', clicked: "supprimerEntit"})],
-	projectName: '',
-	
-	actions:
-	{
-		createModalSuppEntit: function() {
-		this.set('content',this.store.find('Entity'));
-		var self = this;
-		this.store.find('Config').then(
-			function(configs) {
-				var config = configs.get('firstObject');
-				self.set('entitiesList', config.get('currentProject').get('entitiesList'));
-			}
-		);
-		Bootstrap.ModalManager.open('suppEntitModal', 'Supprimer une entite', '???', this.suppEntitButtons,this);
-		},
-
-		supprimerEntit: function()
-		{
-		var application = this.get('controllers.Application');
-		var cpt = 0;
-		
-		for(var i=0;i<this.get('content').get('length');i++)
-		{
-			if (this.objectAtContent(i).isSelected)
-			{
-				cpt++;
-				this.get('entitiesList').remove(this.objectAtContent(i));
-			}
-		}
-		
-		this.store.find('Config').then(
-			function(configs) {
-				var config = configs.get('firstObject');
-			}
-		);
-		if(cpt == 0) alert("Aucune entitée selectionnée");
-		else alert("Entite(s) supprimée(s)");
-    	  	return Bootstrap.ModalManager.close('suppEntitModal');
-		}
-
-	},
-});
-
-App.EntitController = Ember.ObjectController.extend
-({	
-	isSelected: false
-});
-
-//////////////////////////////////////////////////controleurs de suppression de diagrammes
-App.DeleteDiagController = Ember.ArrayController.extend
-({
-	needs: ['Application'],
-	itemController: 'diag',
-	suppDiagButtons: [Ember.Object.create({title: 'Supprimer', clicked: "supprimerDiag"})],
-	projectName: '',
-	
-	actions:
-	{
-		createModalSuppDiag: function() {
-		this.set('content',this.store.find('Diagram'));
-		var self = this;
-		this.store.find('Config').then(
-			function(configs) {
-				var config = configs.get('firstObject');
-				self.set('diagrammeDeClasse', config.get('currentProject').get('diagrammeDeClasse'));
-			}
-		);
-		Bootstrap.ModalManager.open('suppDiagModal', 'Supprimer un diagramme', '???', this.suppDiagButtons,this);
-		},
-
-		supprimerDiag: function()
-		{
-		var application = this.get('controllers.Application');
-					
-		for(var i=0;i<this.get('content').get('length');i++)
-		{
-			if (this.objectAtContent(i).isSelected)
-			{
-				this.get('diagrammeDeClasse').remove(this.objectAtContent(i));
-			}
-		}
-		
-		this.store.find('Config').then(
-			function(configs) {
-				var config = configs.get('firstObject');
-			}
-		);
-		alert("Diagramme(s) supprimé(s)");
-    	  	return Bootstrap.ModalManager.close('suppDiagModal');
-		}
-
-	},
-});
-
-App.DiagController = Ember.ObjectController.extend
-({	
-	isSelected: false
-});
-
 ///////////////////////////////////////////Controleur edition d'entitée
 
 App.EditerEntiteController = Ember.ArrayController.extend
 ({
 	itemController: 'entitedit',
+	needs: ['Application'],
 	editerEntiteButtons: [Ember.Object.create({title: 'Editer', clicked: "editerEntite"})],
+	nameEntit: "",
+	entityType: App.EntityType.toArray(),
+	selectedEntityType: '',
+	methods: [],
+	attributs: [],
+	entiteEdit: null,	
+
 	actions:
 	{
-		createModalEditerEntite: function(entite) {
-			console.log("test0");
-			//console.log(entite);
-
-			this.set('content',entite);
+		createModalEditerEntite: function(entite) 
+		{
+			this.attributs.clear();
+			this.methods.clear();	
+			
+			this.set('nameEntit', entite.get('entityName'));
+			this.set('selectedEntityType', entite.get('entityType'));
+			var attrs = entite.get('attributesList');
+			var methode = entite.get('methodsList');
 			var self = this;
-			/*this.store.find('Config').then(
-				function(configs) {
-					var config = configs.get('firstObject');
-					//self.set('diagrammeDeClasse', config.get('currentProject').get('diagrammeDeClasse'));
+			attrs.then(
+				function(attrs) {
+					for (var i = 0;i < attrs.get('length');i++) {
+						self.get('attributs').pushObject( 
+							{ name : attrs.objectAtContent(i).get('attributeName')}
+						);
+					}
 				}
-			);*/
+			);	
+			
+			methode.then(
+				function(methode) {
+					for (var i = 0;i < methode.get('length');i++) {
+						self.get('methods').pushObject( 
+							{ name : methode.objectAtContent(i).get('methodName')}
+						);
+					}
+				}
+			);	
+
+			this.set('entiteEdit', entite);
+			
 			Bootstrap.ModalManager.open('editerEntiteModal', 'Editer une entité', 'editentity', this.editerEntiteButtons,this);
 		},
 
-		addField: function()
+		addFieldAttributs: function()
 		{
-			this.get('content').pushObject({name: 'entité '});
-		
+			this.get('attributs').pushObject({name: 'attribut '});
+		},
+
+		addFieldMethods: function()
+		{
+			this.get('methods').pushObject({name: 'methode '});
 		},
 
 		editerEntite: function()
 		{
 			var application = this.get('controllers.Application');
-			
-				/////////////////
-				//recuperation///
-				/////////////////
-		
-			alert("Entitée(s) supprimée(s)");
-    	  		return Bootstrap.ModalManager.close('editerEntiteModal');
-		},
-		onClose: function(name) 
-		{
-			var entityDel = this.get('content').findBy('name', name);
-			if (entityDel != null) 
+			this.get('entiteEdit').get('attributesList').clear() ;
+
+			//nom et type ajouter à l'objet
+			if(this.nameEntit && this.nameEntit.trim())
 			{
-				this.get('content').removeObject(entityDel);
+				this.get('entiteEdit').set('entityName', this.nameEntit);
+			}
+			this.get('entiteEdit').set('entityType', this.selectedEntityType);
+
+			//attributs
+			for(var i = 0;i < this.attributs.get('length');i++)
+			{
+				var attr = this.store.createRecord('Attribute', 
+				{
+				attributeName: this.attributs[i].name,
+				attributeType: this.attributs[i].type,
+				attributeValue: this.attributs[i].value,
+				visibility: this.attributs[i].visibility,
+				//isVisible: 
+				//isStatic:
+				multiplicityMin: this.attributs[i].multiMin,
+				multiplicityMax: this.attributs[i].multiMax				
+			      });
+				attr.save();
+				this.get('entiteEdit').get('attributesList').pushObject(attr);
+			}							
+
+			//methods
+			for(var i = 0;i < this.methods.get('length');i++)
+			{
+				var meth = this.store.createRecord('Method', 
+				{
+					methodName: this.methods[i].name,
+					methodReturnType: this.methods[i].returnType,
+					visibility: this.methods[i].visibility
+					//isAbstract: DS.attr('boolean')
+					//isVisible: DS.attr('boolean')
+					//isStatic: DS.attr('boolean')
+					//override: DS.attr('Method'),
+					//overload: DS.attr('Method'),
+					//parameters: DS.hasMany('Parameter')
+				});
+				meth.save();
+				this.get('entiteEdit').get('methodsList').pushObject(meth);
+			}
+
+			this.get('entiteEdit').save();
+			alert("Entitée(s) éditée(s)");
+    	  		return Bootstrap.ModalManager.close('editerEntiteModal');
+
+		},
+		onCloseAttributs: function(name) 
+		{
+			for(var i = 0;i< this.attributs.get('length');i++)
+			{
+				if(this.attributs[i].name === name)
+				{
+					this.attributs.removeObject(this.attributs[i]);
+				}
+			
+			}
+		},
+		onCloseMethods: function(name) 
+		{
+			for(var i = 0;i< this.methods.get('length');i++)
+			{
+				if(this.methods[i].name === name)
+				{
+					this.methods.removeObject(this.methods[i]);
+				}
+			
 			}
 		}
-
 	}
 });
 
 App.EntiteditController = Ember.ObjectController.extend
+({	
+	isSelected: false
+});
+
+
+///////////////////////////////////////////Controleurs d'ajout d entité a un diagramme de classe
+App.AjoutEntitController = Ember.ArrayController.extend
+({
+	needs: ['Application'],
+
+	itemController: 'ajoutentit',
+	ajoutEntitButtons: [Ember.Object.create({title: 'Ajouter une entité', clicked: "ajoutEntit"})],
+	diagrame: null,
+	
+	actions:
+	{
+		createModalAjoutEntit: function(diagram) 
+		{
+			this.diagrame = diagram;
+			var self = this;			
+
+			this.store.find('Config').then(
+				function(configs) {
+					var config = configs.get('firstObject');
+					var currentProject = config.get("currentProject");
+					var id = currentProject.get("id");				
+
+					self.store.find('Entity', { projet: id }).then(
+						function(entities){
+							var entitiesList = diagram.get("entitiesList");
+							
+							self.set('content',entities);
+
+							//afin de voir les entitees cochées
+							/*for(var i=0;i<self.get('content').get('length');i++)
+							{
+								if(entitiesList.contains(self.get('content').objectAtContent(i)))
+								{
+									self.objectAtContent(i).isSelected = true;
+								}
+							}*/
+						
+						}
+					);
+				}
+			);		
+
+			Bootstrap.ModalManager.open('ajoutEntitModal', 'Ajouter une entité', 'edit_entity_ddc', this.ajoutEntitButtons, this);
+		},
+
+	ajoutEntit: function()
+	{
+
+		this.diagrame.get('entitiesList').clear();	
+
+		for(var i=0;i<this.get('content').get('length');i++)
+		{
+			if (this.objectAtContent(i).isSelected && !this.diagrame.get('entitiesList').contains(this.objectAtContent(i)))
+			{
+				
+				var entit = this.get("content").objectAtContent(i);
+				this.diagrame.get('entitiesList').pushObject(entit);
+			}
+			else if(this.diagrame.get('entitiesList').contains(this.objectAtContent(i)))
+			{	
+				
+				var entit = this.get("content").objectAtContent(i);
+				this.diagrame.get('entitiesList').removeObject(entit)
+			}
+		}
+		//this.diagrame.get('entitiesList').save();
+		this.diagrame.save();	
+		alert("Liste d'entité mise à jour");
+		return Bootstrap.ModalManager.close('ajoutEntitModal');	
+	}
+},
+});
+
+
+
+App.AjoutentitController = Ember.ObjectController.extend
 ({	
 	isSelected: false
 });

@@ -8,42 +8,6 @@
 	<meta name="author" content="Université de Rouen">
 	<link rel="shortcut icon" href="images/icon.png">
     <title>Modeleur UML</title>
-   
-    <script type="text/javascript">
-
-	var appCache = window.applicationCache;
-    
-	console.log("debut");
-	console.log(window.applicationCache.status);
-	appCache.update(); // Attempt to update the user's cache.
-
-	if (appCache.status == window.applicationCache.UPDATEREADY) {
-		console.log("UpdateReady");
-		appCache.swapCache();  // The fetch was successful, swap in the new cache.
-	}
-	console.log("milieu");
-	console.log(window.applicationCache.status);
-	
-	// Check if a new cache is available on page load.
-	window.addEventListener('load', function(e) {
-
-		window.applicationCache.addEventListener('updateready', function(e) {
-			if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
-				// Browser downloaded a new app cache.
-				if (confirm('Nouvelle version disponible, recharger la page ?')) {
-					window.location.reload();
-				}
-			} else {
-				console.log("Manifest inchangé");
-			  // Manifest didn't changed. Nothing new to server.
-			}
-		}, false);
-
-	}, false);
-	console.log("fin");
-    console.log(window.applicationCache.status);
-    </script>
-    
     <!-- Bootstrap -->
     <link href="css/bootstrap.css" rel="stylesheet">
     <!-- Layout -->
@@ -92,8 +56,7 @@
 <body class="animated">
 	<script type="text/x-handlebars" data-template-name="diagram">	
 		<div class="canvasContainer draggable">
-			<div class="divCanvasClass"></div>
-			{{#view App.Canvas}}
+			{{#view App.Canvas contentBinding="entitiesList"}}
 			{{/view}}
 		</div>
 	</script>
@@ -123,10 +86,10 @@
 								<li><a  {{action "createModalCreateProject"}}>Nouveau Projet</a></li>
 								<li><a {{action "createModalOpenProject" target="controllers.ProjectsOpen"}}>Ouvrir Projet</a></li>
 								<li><a {{action "sauvegardeProjet"}}>Sauvegarder Projet</a></li>
-								<li><a {{action ""}}>Sauvegarder Projet dans le serveur</a></li>
 								<li><a {{action "createModalSuppProject" target="controllers.Projects"}}>Supprimer des projets</a></li>
 								<li class="divider"></li>
-								<li><a {{action ""}}>Recharger l'application</a></li>
+								<li><a {{action "reload"}}>Recharger l'application</a></li>
+								<li><a {{action "closeProject"}}>Fermer le projet</a></li>
 							</ul>
 						</li>
 						<li class="dropdown">
@@ -135,31 +98,11 @@
 							</a>
 							<ul class="dropdown-menu">
 								<li><a {{action "createModalCreateEntit"}}>Créer une entité</a></li>
-								<li><a {{action "createModalAddEntit"}}>Ajouter une entité</a></li>
-								<li><a {{action "createModalSuppEntitInDDC"}}>Supprimer une entité DDC</a></li>
-								<li><a {{action "createModalSuppEntit"}}>Supprimer une entité</a></li>
-								<li><a {{action "createModalCreateDDC"}}>Créer un diagramme</a></li>
-								<li><a {{action "createModalEditerEntite" target="controllers.EditerEntite"}}>Edite une entite</a></li>
-								<li><a {{action "createModalSuppDiag"}}>Supprimer DDC</a></li>
+								
 								<li class="divider"></li>
-								<li><a >Chercher un diagramme</a></li>
-								<li><a >Chercher un fichier</a></li>
-								<li><a >Copier</a></li>
-								<li><a >Couper</a></li>
-								<li><a >Coller</a></li>
-								<li><a >Supprimer la selction</a></li>
-							</ul>
-						</li>
-						<li class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" >
-								Affichage <b class="caret"></b>
-							</a>
-							<ul class="dropdown-menu">
-								<li><a >X1</a></li>
-								<li><a >X2</a></li>
-								<li><a >X3</a></li>
-								<li><a >X5</a></li>
-								<li><a >X6</a></li>
+								<li><a {{action "createModalCreateDDC"}}>Créer un diagramme</a></li>
+								
+								
 							</ul>
 						</li>
 						<li><a >Outils</a></li>
@@ -179,7 +122,11 @@
 				</div>
 				<div class="form-group">
 					<label for="type">Type :</label>
-						{{input type="text" class="form-control" value=newType maxLength=50 placeholder="Entrez le type de l'entité"}}
+					            {{view Ember.Select
+									contentBinding="entityType"
+									prompt="Choisissez un type d'entité"
+									selectionBinding="selectedEntityType"
+									class="form-control"}}
 				</div>
 			</form>
 		</div>
@@ -199,7 +146,7 @@
 					{{#each project in controller}}
 					<tr>
 						<td>{{projectName}}</td>
-						<td>{{date}}</td>
+						<td>{{creationDate}}</td>
 						<td>{{input type="checkbox" checked=isSelected}}</td>
 					</tr>
 					{{/each}}
@@ -211,21 +158,109 @@
 		<script type="text/x-handlebars" data-template-name="editentity">
 		<div class="content">
 			<form role="form">
-				
-					{{#each object in controller}}
-					{{#bs-panel heading=name collapsible=true dismiss=true onClose=""}}
-						<div class="form-group">
-						<label for="name">Nom de l'entité :</label>
-							{{input type="text" class="form-control" value=name maxLength=50 placeholder="Entrez le nom de l'entité"}}
-						</div>
-						<div class="form-group">
-							<label for="type">Type :</label>
-								{{input type="text" class="form-control" value=type maxLength=50 placeholder="Entrez le type de l'entité"}}
-						</div>
-					{{/bs-panel}}
-					{{/each}}
-					<button {{action 'addField'}}>Ajouter une entité</button>
-				
+				<div class="form-group">
+				<label for="name">Nom de l'entité :</label>
+					{{input type="text" class="form-control" value=nameEntit maxLength=50 placeholder="Entrez le nom de l'entité"}}
+				</div>
+				<div class="form-group">
+					<label for="type">Type :</label>
+						{{view Ember.Select
+								contentBinding="entityType"
+								prompt="Choisissez un type d'entité"
+								selectionBinding="selectedEntityType"
+								class="form-control"}}
+				</div><br/>
+				{{#each method in methods}}
+				{{#bs-panel heading=method.name collapsible=true dismiss=true onClose="onCloseMethods" open="method.open"}}
+					<div class="form-group">
+					<label for="method">Nom de la méthode :</label>
+						{{input type="text" class="form-control" value=method.name maxLength=50 placeholder="Entrez le nom de la méthode"}}
+					</div>
+					<div class="form-group">
+					<label for="method">Type de retour :</label>
+						{{input type="text" class="form-control" value=method.returnType maxLength=50 placeholder="Entrez le type de retour"}}
+					</div>
+					<div class="form-group">
+					<label>Visibilité de la méthode :</label>
+						{{view Ember.Select
+								contentBinding="visibilityType"
+								prompt="Choisissez la visibilité"
+								selectionBinding="method.selectedVisibilityType"
+								class="form-control"}}
+					</div>
+					<div class="form-group">
+					<label>Méthode statique :</label>
+					{{view Ember.Checkbox checked=method.isStatic}}
+					</div>
+					<div class="form-group">
+					<label>Méthode abstraite :</label>
+					{{view Ember.Checkbox checked=method.isAbstract}}
+					</div>
+					<div class="form-group">
+						<label>Paramètres :</label>
+						<table class="no-border hover">
+							<thead class="no-border">
+								<tr>
+									<th>Nom</th>
+									<th>Direction</th>
+									<th>Type</th>
+								</tr>
+							</thead>
+							<tbody class="no-border-y">
+								{{#each parameter in method.parameters}}
+								<tr>
+									<td>{{parameter.name}}</td>
+									<td>{{parameter.direction}}</td>
+									<td>{{parameter.type}}</td>
+								</tr>
+								{{else}}
+								<tr>
+									<td colspan="3">Aucun paramètre</td>
+								</tr>
+								{{/each}}
+							</tbody>
+						</table>
+					</div>
+				{{/bs-panel}}
+				{{/each}}
+				<br/><button class="btn btn-primary" {{action 'addFieldMethods'}}>Ajouter une méthode</button><br/><br/>
+				{{#each attribut in attributs}}
+				{{#bs-panel heading=attribut.name collapsible=true dismiss=true onClose="onCloseAttributs" open="attribut.open"}}
+					<div class="form-group">
+					<label>Nom de l'attribut :</label>
+						{{input type="text" class="form-control" value=attribut.name maxLength=50 placeholder="Entrez le nom de l'attribut"}}
+					</div>
+					<div class="form-group">
+					<label>Type de l'attribut :</label>
+						{{input type="text" class="form-control" value=attribut.type maxLength=50 placeholder="Entrez le type de l'attribut"}}
+					</div>
+					<div class="form-group">
+					<label>Valeur par défaut de l'attribut :</label>
+						{{input type="text" class="form-control" value=attribut.value maxLength=50 placeholder="Entrez la valeur"}}
+					</div>
+					<div class="form-group">
+					<label>Visibilité de l'attribut :</label>
+						{{view Ember.Select
+								contentBinding="visibilityType"
+								prompt="Choisissez la visibilité"
+								selectionBinding="attribut.selectedVisibilityType"
+								class="form-control"}}
+					</div>
+					<div class="form-group">
+					<label>Attribut statique :</label>
+					{{view Ember.Checkbox checked=attribut.isStatic}}
+					</div>
+					<div class="form-group">
+					<label>Multiplicité minimale :</label>
+					{{input type="text" class="form-control" value=attribut.multiMin maxLength=10}}
+					</div>
+					<div class="form-group">
+					<label>Multiplicité maximale :</label>
+					{{input type="text" class="form-control" value=attribut.multiMax maxLength=10}}
+					</div>
+				{{/bs-panel}}
+				{{/each}}
+				<br/><button class="btn btn-primary" {{action 'addFieldAttributs'}}>Ajouter un attribut</button>
 			</form>
 		</div>
 	</script>
@@ -244,7 +279,7 @@
 					{{#each project in controller}}
 					<tr>
 						<td>{{projectName}}</td>
-						<td>{{date}}</td>
+						<td>{{creationDate}}</td>
 						<td>{{input type="checkbox" checked=isSelected}}</td>
 					</tr>
 					{{/each}}
@@ -282,8 +317,12 @@
                                 		<a>
                                 			<div class="row">
                                 				<div class="col-md-8 ">{{entity.entityName}}</div>
-                                				<div class="col-md-1 colorPurple"><i class="glyphicon glyphicon-edit" {{action "createModalEditerEntite" entity target="controllers.EditerEntite" }}></i></div>
-                                				<div class="col-md-1 colorRed"><i class="glyphicon glyphicon-remove"></i></div>
+                                				<div class="col-md-1 colorPurple">
+                                					<i class="glyphicon glyphicon-edit" {{action "createModalEditerEntite" entity target="controllers.EditerEntite" }}></i>
+                                				</div>
+                                				<div class="col-md-1 colorRed">
+                                					<i class="glyphicon glyphicon-remove" {{action "removeEntityFromProject" entity }}></i>
+                                				</div>
                                 			</div>
                                 		</a>
                                 	</li>	
@@ -296,7 +335,20 @@
                             </a>
                             <ul class="sub-menu">
                                 {{#each classDiagram in model.currentProject.diagrammeDeClasse}}
-                                	<li><a {{action "edit" ClassDiagram}}>{{classDiagram.diagramName}}</a></li>
+                                <li>
+                                		<a>
+                                			<div class="row">
+                                				<div class="col-md-8 ">{{classDiagram.diagramName}}</div>
+                                				<div class="col-md-1 colorGreen">
+                                					<i class="glyphicon glyphicon-plus" {{action "createModalAjoutEntit" classDiagram target="controllers.AjoutEntit"}}></i>
+                                				</div>
+                                				
+                                				<div class="col-md-1 colorRed">
+                                					<i class="glyphicon glyphicon-remove" {{action "removeDiagramFromProject" classDiagram }}></i>
+                                				</div>
+                                			</div>
+                                		</a>
+                                	</li>	
                                 {{/each}}
                             </ul>
                         </li>                 
@@ -311,10 +363,28 @@
         </div>
     </div>
     </script>
-    
-    <script type="text/x-handlebars" data-template-name="canvas">
-		{{view App.Canvas}}
+	
+	<script type="text/x-handlebars" data-template-name="edit_entity_ddc">
+		<div class="content">
+			<table class="no-border hover">
+				<thead class="no-border">
+					<tr>
+						<th style="width:50%;">Nom</th>
+						<th>Ajouter/Supprimer</th>
+					</tr>
+				</thead>
+				<tbody class="no-border-y">
+					{{#each entity in controller}}
+					<tr>
+						<td>{{entityName}}</td>
+						<td>{{input type="checkbox" checked=isSelected}}</td>
+					</tr>
+					{{/each}}
+				</tbody>
+			</table>						
+		</div>
 	</script>
+   
     
   <!-- Begin JavaScript -->
      
@@ -347,6 +417,7 @@
     <script src="js/app/models/Method.js"></script>
     <script src="js/app/models/Parameter.js"></script>
     <script src="js/app/models/Entity.js"></script>
+    <script src="js/app/models/EntityType.js"></script>
     <script src="js/app/models/EntityRender.js"></script>
     <script src="js/app/models/Relation.js"></script>
     <script src="js/app/models/Diagram.js"></script>

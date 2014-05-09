@@ -90,13 +90,13 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
     'placeholder': ("Entrez le nom du diagramme")
   },hashTypes:{'type': "STRING",'class': "STRING",'value': "ID",'maxLength': "INTEGER",'placeholder': "STRING"},hashContexts:{'type': depth0,'class': depth0,'value': depth0,'maxLength': depth0,'placeholder': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push("\n        </div>\n        <div class=\"form-group\">\n            ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
+  /*data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
     'viewName': ("diagramTypeSelect"),
     'contentBinding': ("diagramType"),
     'prompt': ("Choisissez un type de diagramme"),
     'selectionBinding': ("selectedDiagramType"),
     'class': ("form-control")
-  },hashTypes:{'viewName': "STRING",'contentBinding': "STRING",'prompt': "STRING",'selectionBinding': "STRING",'class': "STRING"},hashContexts:{'viewName': depth0,'contentBinding': depth0,'prompt': depth0,'selectionBinding': depth0,'class': depth0},contexts:[depth0],types:["ID"],data:data})));
+  },hashTypes:{'viewName': "STRING",'contentBinding': "STRING",'prompt': "STRING",'selectionBinding': "STRING",'class': "STRING"},hashContexts:{'viewName': depth0,'contentBinding': depth0,'prompt': depth0,'selectionBinding': depth0,'class': depth0},contexts:[depth0],types:["ID"],data:data})));*/
   data.buffer.push("\n        </div>\n    </form>\n</div>");
   return buffer;
   

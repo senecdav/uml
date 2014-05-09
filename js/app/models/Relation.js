@@ -2,6 +2,16 @@ App.Relation = DS.Model.extend({
 	entityTarget: DS.belongsTo('Entity'),
 	source: DS.belongsTo('Entity'),
 	name: DS.attr('string'),
-	type: DS.attr('number')
+	type: DS.attr('number'),
+	
+	saveRelation: function() {
+
+		this.save().then(function(){
+  	
+		}, function() {
+ 			
+		});
+		
+	}
 	
 });

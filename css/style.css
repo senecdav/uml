@@ -7628,6 +7628,14 @@ ul.timeline li > .date {
 	color:rgb(121, 28, 248);
 }
 
+.colorGreen{
+	color:#22AA22;
+}
+
+.colorGreen:hover{
+	color:#00FF00;
+}
+
 #cl-wrapper
 {
 opacity:1;
