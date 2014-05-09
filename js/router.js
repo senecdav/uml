@@ -1,15 +1,15 @@
 // Liste des routes
 App.Router.map(function() {
-  //this.route("diagram", { path: "/diagram" });
-  this.resource('diagrams');
-  this.resource('diagram', { path: '/diagram/:classdiagramid' });
+  this.route("diagram", { path: "/diagram" });
+  /*this.resource('diagrams');
+  this.resource('diagram', { path: '/diagram/:classdiagramid' });*/
 });
 
 App.DiagramRoute = Em.Route.extend({
-	model: function(params) {
+	/*model: function(params) {
 		return this.store.find('ClassDiagram', params.classdiagramid);
-	},
-	/*model: function() {
+	},*/
+	model: function() {
 		return {
 			entitiesList : [
 				{
@@ -51,7 +51,7 @@ App.DiagramRoute = Em.Route.extend({
 				}
 			]
 		};
-	}*/
+	}
 });
 
 // Route par dÃ©faut
