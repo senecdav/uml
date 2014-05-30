@@ -9,7 +9,7 @@ App.DiagramRoute = Em.Route.extend({
 	/*model: function(params) {
 		return this.store.find('ClassDiagram', params.classdiagramid);
 	},*/
-	model: function() {
+	/*model: function() {
 		return {
 			entitiesList : [
 				{
@@ -51,7 +51,7 @@ App.DiagramRoute = Em.Route.extend({
 				}
 			]
 		};
-	}
+	}*/
 });
 
 // Route par dÃ©faut
@@ -75,6 +75,9 @@ App.ApplicationRoute = Em.Route.extend({
 
         }
     },*/
+    beforeModel: function() {
+    	jeuDeTest(this.store);
+    },
     model:  function() {
 		var self = this; // Lien vers la route
 		return this.store.find('Config').then(

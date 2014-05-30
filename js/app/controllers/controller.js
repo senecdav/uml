@@ -240,6 +240,19 @@ App.ApplicationController = Ember.Controller.extend(
 		diagram.save();
   },
   
+  setCurrentDiagram: function(diagram){
+	  	if(diagram === null) {
+	  			return;
+	  		}
+	  	
+	  	var diag = this.get('model').get('currentProject').get('diagrammeDeClasse');
+	  	
+	  	for (var i = 0; i < diag.get("length"); i++) {
+	  		diag.set('isCurrent', false);
+	  	}
+	  	
+	  	diagram.set('isCurrent', true);
+  	}
 }
 });
 
@@ -399,9 +412,7 @@ App.EditerEntiteController = Ember.ArrayController.extend
 			attrs.then(
 				function(attrs) {
 					for (var i = 0;i < attrs.get('length');i++) {
-						self.get('attributs').pushObject( 
-							{ name : attrs.objectAtContent(i).get('attributeName')}
-						);
+						self.get('attributs').pushObject(attrs.objectAtContent(i));
 					}
 				}
 			);	
@@ -409,9 +420,7 @@ App.EditerEntiteController = Ember.ArrayController.extend
 			methode.then(
 				function(methode) {
 					for (var i = 0;i < methode.get('length');i++) {
-						self.get('methods').pushObject( 
-							{ name : methode.objectAtContent(i).get('methodName')}
-						);
+						self.get('methods').pushObject(methode.objectAtContent(i));
 					}
 				}
 			);	
@@ -423,18 +432,24 @@ App.EditerEntiteController = Ember.ArrayController.extend
 
 		addFieldAttributs: function()
 		{
-			this.get('attributs').pushObject({name: 'attribut '});
+			var attr = this.store.createRecord('Attribute', 
+				{ attributeName : "attribut"});
+			this.get('attributs').pushObject(attr);
 		},
 
 		addFieldMethods: function()
 		{
-			this.get('methods').pushObject({name: 'methode '});
+			//this.get('methods').pushObject({name: 'methode '});
+			var meth = this.store.createRecord('Method',
+				{ methodName :"methode"});
+			this.get('methods').pushObject(meth);
 		},
 
 		editerEntite: function()
 		{
 			var application = this.get('controllers.Application');
-			this.get('entiteEdit').get('attributesList').clear() ;
+			this.get('entiteEdit').get('attributesList').clear();
+			this.get('entiteEdit').get('methodsList').clear() ;
 
 			//nom et type ajouter à l'objet
 			if(this.nameEntit && this.nameEntit.trim())
@@ -446,25 +461,26 @@ App.EditerEntiteController = Ember.ArrayController.extend
 			//attributs
 			for(var i = 0;i < this.attributs.get('length');i++)
 			{
-				var attr = this.store.createRecord('Attribute', 
+				/*var attr = this.store.createRecord('Attribute', 
 				{
-				attributeName: this.attributs[i].name,
-				attributeType: this.attributs[i].type,
-				attributeValue: this.attributs[i].value,
-				visibility: this.attributs[i].visibility,
+				attributeName: this.attributs[i].get("attributeName"),
+				attributeType: this.attributs[i].get("attributeType"),
+				attributeValue: this.attributs[i].get("attributeValue"),
+				visibility: this.attributs[i].get("visibility"),
 				//isVisible: 
-				//isStatic:
-				multiplicityMin: this.attributs[i].multiMin,
-				multiplicityMax: this.attributs[i].multiMax				
-			      });
-				attr.save();
-				this.get('entiteEdit').get('attributesList').pushObject(attr);
+				isStatic: this.attributs[i].get("isStatic"),
+				multiplicityMin: this.attributs[i].get("multiplicityMin"),
+				multiplicityMax: this.attributs[i].get("multiplicityMax")				
+			      });*/
+			      this.attributs[i].save();
+				//attr.save();
+				this.get('entiteEdit').get('attributesList').pushObject(this.attributs[i]);
 			}							
 
 			//methods
 			for(var i = 0;i < this.methods.get('length');i++)
 			{
-				var meth = this.store.createRecord('Method', 
+				/*var meth = this.store.createRecord('Method', 
 				{
 					methodName: this.methods[i].name,
 					methodReturnType: this.methods[i].returnType,
@@ -475,9 +491,10 @@ App.EditerEntiteController = Ember.ArrayController.extend
 					//override: DS.attr('Method'),
 					//overload: DS.attr('Method'),
 					//parameters: DS.hasMany('Parameter')
-				});
-				meth.save();
-				this.get('entiteEdit').get('methodsList').pushObject(meth);
+				});*/
+				//meth.save();
+				this.methods[i].save();
+				this.get('entiteEdit').get('methodsList').pushObject(this.methods[i]);
 			}
 
 			this.get('entiteEdit').save();
@@ -489,7 +506,7 @@ App.EditerEntiteController = Ember.ArrayController.extend
 		{
 			for(var i = 0;i< this.attributs.get('length');i++)
 			{
-				if(this.attributs[i].name === name)
+				if(this.attributs[i].get("attributeName") === name)
 				{
 					this.attributs.removeObject(this.attributs[i]);
 				}
@@ -500,7 +517,7 @@ App.EditerEntiteController = Ember.ArrayController.extend
 		{
 			for(var i = 0;i< this.methods.get('length');i++)
 			{
-				if(this.methods[i].name === name)
+				if(this.methods[i].get("methodName") === name)
 				{
 					this.methods.removeObject(this.methods[i]);
 				}

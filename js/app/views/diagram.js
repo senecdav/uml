@@ -5,34 +5,161 @@ App.Canvas = Ember.View.extend({
 	// Minimum width and height
 	width: 1000,
 	height: 600,
-	drawClass: function(entity) {
-		var type = entity.entityType;
-		var classe = entity.entityName;
+	elements: [],
+	/*updateEntities: function() {
+		var entities = this.get("content");
+		for (var i = 0; i < entities.get("length"); i++) {
+			console.log("passage");
+			var drawnEntity = $("#draggable" + entities.objectAtContent(i).id);
+			if (!drawnEntity) {
+				//draw
+			}
+		}
+	}.observes("content.@each"),*/
+	
+	drawClass: function(entity, nbEntity) {
+		var type = entity.get("entityType");
+		if (type === "class") {
+			type = "";
+		} else {
+			type = "&lt;&lt;"+ type + "&gt;&gt;</br>";
+		}
+		var classe = entity.get("entityName");
 		var attribut = '';
 		var methode = '';
-		var form = "<div style='border-style:none;' id='draggable" + entity.id + "' class='ui-widget-content ui-draggable draggableStyle'><table border='1' style='border-color:#000;' height=100% width=100% ><tr><td>"+classe+"</td></tr><tr><td>"+attribut+"</td></tr><tr><td>"+methode+"</td></tr></table></div>";
-		$(".draggable").append(form);
-		$("#draggable" + entity.id).draggable({ 
-			containment: ".canvasContainer",
-			scroll: false 
-		});
-		$( "#draggable" + entity.id).css({
-			top: entity.entityRender.y,
-			left: entity.entityRender.x
-		});
 		var self = this;
-		$("#draggable" + entity.id).draggable({
-			drag: function(event, ui) {
-				self.redrawAllRelations();
-			},
-			start: function() {
-				self.handleStartDrag(this);
-			},
-			stop: function() {
-				self.handleStopDrag(this);
+		entity.get("attributesList").then(
+			function(attributes) {
+				attribut = self.drawAttributes(attributes);
+				entity.get("methodsList").then(
+					function(methods) {
+						methode = self.drawMethods(methods);
+						var form = "<div style='border-style:none;' id='draggable" + entity.id + "' class='ui-widget-content ui-draggable draggableStyle'><table border='1' style='border-color:#000;' height=100% width=100% ><tr><td id='header" + entity.id + "'>" + type + classe + "</td></tr><tr><td id='attribute"+entity.id+"' >"+attribut+"</td></tr><tr><td id='method"+entity.id+"' >"+methode+"</td></tr></table></div>";
+						
+						$(".draggable").append(form);
+						$("#draggable" + entity.id).draggable({ 
+							containment: "#canvasContainer",
+							scroll: false 
+						});
+						
+						$("#draggable" + entity.id).draggable({
+							drag: function(event, ui) {
+								self.redrawAllRelations();
+							},
+							start: function() {
+								self.handleStartDrag(this);
+							},
+							stop: function() {
+								self.handleStopDrag(this);
+							}
+						});
+					}
+				);
 			}
-		});
+		);
 	},
+	
+	drawAttributes: function(attributes) {
+		var attribut = '';
+		for (var i = 0; i < attributes.get("length"); i++) {
+			attribut += '<div>';
+			var currentAtt = attributes.objectAtContent(i);
+			var visibility = currentAtt.get("visibility");
+			if (visibility == App.Visibility.PRIVATE) {
+				attribut += "- ";
+			} else if (visibility == App.Visibility.PROTECTED) {
+				attribut += "# ";
+			} else if (visibility == App.Visibility.PUBLIC) {
+				attribut += "+ ";
+			} else if (visibility == App.Visibility.PACKAGE) {
+				attribut += "~ ";
+			}
+			if (currentAtt.get("isStatic")) {
+				attribut += "<u>";
+			}
+			attribut += currentAtt.get("attributeName");
+			if (currentAtt.get("isStatic")) {
+				attribut += "</u>";
+			}
+			attribut += ":";
+			attribut += currentAtt.get("attributeType");
+			if (currentAtt.get("multiplicityMin") || currentAtt.get("multiplicityMax")) {
+				attribut += "[";
+				if (currentAtt.get("multiplicityMin")) {
+					attribut += currentAtt.get("multiplicityMin");
+					attribut += "..";
+				}
+				if (currentAtt.get("multiplicityMax")) {
+					attribut += currentAtt.get("multiplicityMax");
+				} else {
+					attribut += "*";
+				}
+				attribut += "]";
+			}
+			attribut += "</div>";
+		}
+		return attribut;
+	},
+	
+	drawMethods: function(methods){
+		var methode ='';
+		for (var i = 0; i < methods.get("length"); i++) {
+			methode+='<div>';
+			var currentMet = methods.objectAtContent(i);
+			
+			if (currentMet.get("isAbstract")) {
+				methode += "<em>";
+			}
+			var visibility = currentMet.get("visibility");
+			if (visibility == App.Visibility.PRIVATE) {
+				methode += "- ";
+			} else if (visibility == App.Visibility.PROTECTED) {
+				methode += "# ";
+			} else if (visibility == App.Visibility.PUBLIC) {
+				methode += "+ ";
+			} else if (visibility == App.Visibility.PACKAGE) {
+				methode += "~ ";
+			}
+			if (currentMet.get("isStatic")) {
+				methode += "<u>";
+			}
+			methode += methods.objectAtContent(i).get("methodName");
+			if (currentMet.get("isStatic")) {
+				methode += "</u>";
+			}
+			methode += "() ";
+			methode += ":";
+			methode += currentMet.get("methodReturnType");
+			
+			
+			
+			if (currentMet.get("isAbstract")) {
+				methode += "</em>";
+			}
+
+			methode += "</div>";
+			
+			
+			
+		}
+		return methode;
+	},
+	
+	redrawHeader: function(entity) {
+		//var entity = $("#draggable" + entity.id);
+		var header = $("#header" + entity.id);
+		header.html("&lt;&lt;"+ entity.get("entityType") + "&gt;&gt;<br/>" + entity.get("entityName"));
+	},
+	redrawAttributes: function(entity){
+		var attributes = $("#attribute"+ entity.id);
+		attributes.html(this.drawAttributes(entity.get('attributesList')));
+	},
+	
+	redrawMethods: function(entity){
+		var methods = $("#method"+entity.id);
+		methods.html(this.drawMethods(entity.get('methodsList')));
+	},
+	
 	redrawAllRelations: function() {
 		var canvas = $("canvas")[0];
 		var ctx = canvas.getContext('2d');
@@ -47,10 +174,14 @@ App.Canvas = Ember.View.extend({
 		}
 	},
 	drawRelations: function(ctx, entity) {		
-		var relations = entity.relationsList;
-		for (var i = 0; i < relations.length; i++) {
-			this.drawRelation(ctx, "#draggable" + entity.id, "#draggable" + relations[i].entityTarget);
-		}
+		var relations = entity.get("relationsList");
+		relations.then(
+			function(relations) {
+				for (var i = 0; i < relations.get("length"); i++) {
+					this.drawRelation(ctx, "#draggable" + entity.get("id"), "#draggable" + relations.objectAtContent(i).get("entityTarget"));
+				}
+			}
+		);
 	},
 	drawRelation: function(ctx, source, target) {
 		source = $(source);
@@ -59,17 +190,49 @@ App.Canvas = Ember.View.extend({
 		//this.drawLine(this.getPosition(source, target));
 		this.drawLineArrow(ctx, this.getPosition(source, target));
 	},
+	resize: function(width, height) {
+		this.set("width", width);
+		this.set("height", height);
+		$("#canvasContainer").width(width + 2);
+		$("#canvasContainer").height(height + 2);
+	},
 	didInsertElement: function(){
 		var canvas = $("canvas")[0];
 		var ctx = canvas.getContext('2d');
 		var entities = this.get("content");
-		console.log(entities.get("length"));
-		for (var i = 0; i < entities.length; i++) {
-			this.drawClass(entities[i]);
-		}
-		for (var i = 0; i < entities.length; i++) {
-			this.drawRelations(ctx, entities[i]);
-		}
+
+		var self = this;
+		entities.then(
+			function(entities) {
+					if (entities.get("length") > 5) {
+						self.resize((entities.get("length")-5) * 50 + 1000, (entities.get("length")-5) * 50 + 600);
+					}
+					/*entities.addArrayObserver(
+					self, 
+						{
+					  	willChange: function(entities, offset, removeCount, addCount){
+							console.log("1");
+						},
+						arrayDidChange: function(entities, offset, removeCount, addCount){
+							console.log("2");
+						}
+					});*/
+				for (var i = 0; i < entities.get("length"); i++) {
+					var entity = App.CanvasElement.create({canvas: self, content: entities.objectAtContent(i)});
+					self.get("elements").pushObject(entity);
+					self.drawClass(entity.get("content"), i+1);
+				}
+				for (var i = 0; i < entities.get("length"); i++) {
+					self.drawRelations(ctx, entities.objectAtContent(i));
+				}
+			}
+		);
+	},
+	redrawEntities: function() {
+		
+	},
+	updateCanvas: function(entity) {
+		this.drawClass(entity);
 	},
 	getPosition: function(sourceElement, targetElement) {
 		var sourceX = sourceElement.offset().left + sourceElement.width() / 2;
@@ -156,7 +319,7 @@ App.Canvas = Ember.View.extend({
 	},
 	coordinates: function(element) {
 		element = $(element);
-		console.log(element);
+		//console.log(element);
 		var top = element.position().top;
 		var left = element.position().left;
 		return {x: left ,y: top};
@@ -175,8 +338,26 @@ App.Canvas = Ember.View.extend({
 	},
 	eventManager: Ember.Object.create({
 		doubleClick: function(event, view) {
-		  console.log("Double click");
+		 // console.log("Double click");
 		}
 	})
+});
+
+App.CanvasElement = Ember.Object.extend({
+	content: null,
+	canvas: null,
+	
+	updateHeader: function() {
+		this.get("canvas").redrawHeader(this.get("content"));
+	}.observes("content.entityName", "content.entityType"),
+	
+	updateAttributes: function(){
+		this.get("canvas").redrawAttributes(this.get("content"));
+	}.observes("content.attributesList.@each"),
+	
+	
+	updateMethodes: function(){
+		this.get("canvas").redrawMethods(this.get("content"));
+	}.observes("content.methodsList.@each")
 });
 

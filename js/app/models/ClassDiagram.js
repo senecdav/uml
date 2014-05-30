@@ -9,7 +9,7 @@ App.ClassDiagram = App.Diagram.extend({
 	
 	saveClassDiagram: function() {
 	
-		/*if(typeof entitiesList != 'undefined'){
+		if(typeof entitiesList != 'undefined'){
 			this.get('entitiesList').then(
 				function(entities) {
 					for(var i = 0; i < entities.get('length'); i++){
@@ -17,13 +17,15 @@ App.ClassDiagram = App.Diagram.extend({
 					}
 				}
 			);
-		}*/
-		
+		}
+		/*
 		var entities = this.get('entitiesList');
 			for(var i = 0; i < entities.get('length'); i++){
+				Ember.debug(entities);
 				entities.objectAtContent(i).saveAttribute();
+			
 			}
-
+		*/
 		this.save().then(function(){
   	
 		}, function() {

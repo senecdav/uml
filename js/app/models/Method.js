@@ -28,9 +28,6 @@ App.Method = DS.Model.extend({
 		
 		var params = this.get('parameters');
 			for(var i = 0; i < params.get('length'); i++){
-				if (isDeleted) {
-						params.objectAtContent(i).deleteRecord();
-				}
 				params.objectAtContent(i).saveAttribute();
 			}
 		

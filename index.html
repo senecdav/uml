@@ -2,19 +2,19 @@
 <html manifest="uml.appcache">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta name="description" content="UML"/>
-	<meta name="author" content="Université de Rouen"/>
-	<link rel="shortcut icon" href="images/icon.png"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="UML">
+	<meta name="author" content="Université de Rouen">
+	<link rel="shortcut icon" href="images/icon.png">
     <title>Modeleur UML</title>
     <!-- Bootstrap -->
-    <link href="css/bootstrap.css" rel="stylesheet"/>
+    <link href="css/bootstrap.css" rel="stylesheet">
     <!-- Layout -->
-    <link href="css/style.css" rel="stylesheet"/>
+    <link href="css/style.css" rel="stylesheet">
     <!-- Font awesome -->
 	<!--<link rel="stylesheet" href="fonts/font-awesome-4/css/font-awesome.min.css">-->
-	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css"/>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -24,17 +24,22 @@
     <![endif]-->
     <style>
 	.draggableStyle { 
-		width: 150px;
-		height: 150px;
-		padding: 0.5em;
+		/*width: 150px;
+		height: 150px;*/
+		max-width: 200px;
+		/*max-height: 500px;*/
+		float:left;
+		padding: 0.1em;
 		z-index: 1;
+	}
+	.draggableStyle table tr td div {
+		max-width: 175px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 	.draggableStyle table tr:nth-child(2n) {
 		background: white;
-	}
-	.canvasContainer {
-		position: relative;
-		border: 1px solid #555;
 	}
 	canvas
 	{
@@ -45,19 +50,43 @@
 		z-index: 0;
 		/* control height and width in code to prevent stretching */
 	}
-	.canvasContainer{
-		width: 1000px;
-		height: 600px;
+	#canvasContainer{
+		width: 1002px;
+		height: 602px;
 		padding: 0;
 		margin: 0;
+		position: relative;
+		background-color: white;
+		overflow:hidden;
+		border: 1px solid #555;
 	}
 	</style>
 </head>
 <body class="animated">
-	<script type="text/x-handlebars" data-template-name="diagram">	
-		<div class="canvasContainer draggable">
-			{{#view App.Canvas contentBinding="entitiesList"}}
-			{{/view}}
+	<script type="text/x-handlebars" data-template-name="application">	
+	<div id="cl-wrapper" style="opacity: 1; margin-left: 0px;">
+		{{partial 'tree' }}
+		<div class="container-fluid" id="pcont">
+		    <!-- TOP NAVBAR -->
+		    {{partial 'navbar'}}
+		    <div class="cl-mcont">		
+		        <div class="row">
+		            {{partial '_diagram'}}
+		        </div>
+		    </div>
+		</div>
+	</div> 
+	<!--{{partial 'footer'}}-->
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="_diagram">	
+		<div id="canvasContainer" class="draggable">
+			{{#each classDiagram in model.currentProject.diagrammeDeClasse}}
+				{{#if classDiagram.isCurrent}}
+					{{#view App.Canvas contentBinding="classDiagram.entitiesList"}}
+					{{/view}}
+				{{/if}}
+			{{/each}}
 		</div>
 	</script>
 	
@@ -159,7 +188,7 @@
 		<div class="content">
 			<form role="form">
 				<div class="form-group">
-				<label for="name">Nom de l'entité :</label>
+					<label for="name">Nom de l'entité :</label>
 					{{input type="text" class="form-control" value=nameEntit maxLength=50 placeholder="Entrez le nom de l'entité"}}
 				</div>
 				<div class="form-group">
@@ -171,17 +200,17 @@
 								class="form-control"}}
 				</div><br/>
 				{{#each method in methods}}
-				{{#bs-panel heading=method.name collapsible=true dismiss=true onClose="onCloseMethods" open="method.open"}}
+				{{#bs-panel heading=method.methodName collapsible=true dismiss=true onClose="onCloseMethods"}}
 					<div class="form-group">
-					<label for="method">Nom de la méthode :</label>
-						{{input type="text" class="form-control" value=method.name maxLength=50 placeholder="Entrez le nom de la méthode"}}
+						<label for="method">Nom de la méthode :</label>
+						{{input type="text" class="form-control" value=method.methodName maxLength=50 placeholder="Entrez le nom de la méthode"}}
 					</div>
 					<div class="form-group">
-					<label for="method">Type de retour :</label>
-						{{input type="text" class="form-control" value=method.returnType maxLength=50 placeholder="Entrez le type de retour"}}
+						<label for="method">Type de retour :</label>
+						{{input type="text" class="form-control" value=method.methodReturnType maxLength=50 placeholder="Entrez le type de retour"}}
 					</div>
 					<div class="form-group">
-					<label>Visibilité de la méthode :</label>
+						<label>Visibilité de la méthode :</label>
 						{{view Ember.Select
 								contentBinding="visibilityType"
 								prompt="Choisissez la visibilité"
@@ -189,12 +218,12 @@
 								class="form-control"}}
 					</div>
 					<div class="form-group">
-					<label>Méthode statique :</label>
-					{{view Ember.Checkbox checked=method.isStatic}}
+						<label>Méthode statique :</label>
+						{{view Ember.Checkbox checked=method.isStatic}}
 					</div>
 					<div class="form-group">
-					<label>Méthode abstraite :</label>
-					{{view Ember.Checkbox checked=method.isAbstract}}
+						<label>Méthode abstraite :</label>
+						{{view Ember.Checkbox checked=method.isAbstract}}
 					</div>
 					<div class="form-group">
 						<label>Paramètres :</label>
@@ -223,23 +252,24 @@
 					</div>
 				{{/bs-panel}}
 				{{/each}}
-				<br/><button class="btn btn-primary" {{action 'addFieldMethods'}}>Ajouter une méthode</button><br/><br/>
+				<br/>
+				<button class="btn btn-primary" {{action 'addFieldMethods'}}>Ajouter une méthode</button><br/><br/>
 				{{#each attribut in attributs}}
-				{{#bs-panel heading=attribut.name collapsible=true dismiss=true onClose="onCloseAttributs" open="attribut.open"}}
+				{{#bs-panel heading=attribut.attributeName collapsible=true dismiss=true onClose="onCloseAttributs"}}
 					<div class="form-group">
 					<label>Nom de l'attribut :</label>
-						{{input type="text" class="form-control" value=attribut.name maxLength=50 placeholder="Entrez le nom de l'attribut"}}
+						{{input type="text" class="form-control" value=attribut.attributeName maxLength=50 placeholder="Entrez le nom de l'attribut"}}
 					</div>
 					<div class="form-group">
 					<label>Type de l'attribut :</label>
-						{{input type="text" class="form-control" value=attribut.type maxLength=50 placeholder="Entrez le type de l'attribut"}}
+						{{input type="text" class="form-control" value=attribut.attributeType maxLength=50 placeholder="Entrez le type de l'attribut"}}
 					</div>
 					<div class="form-group">
 					<label>Valeur par défaut de l'attribut :</label>
-						{{input type="text" class="form-control" value=attribut.value maxLength=50 placeholder="Entrez la valeur"}}
+						{{input type="text" class="form-control" value=attribut.attributeValue maxLength=50 placeholder="Entrez la valeur"}}
 					</div>
 					<div class="form-group">
-					<label>Visibilité de l'attribut :</label>
+						<label>Visibilité de l'attribut :</label>
 						{{view Ember.Select
 								contentBinding="visibilityType"
 								prompt="Choisissez la visibilité"
@@ -247,20 +277,21 @@
 								class="form-control"}}
 					</div>
 					<div class="form-group">
-					<label>Attribut statique :</label>
-					{{view Ember.Checkbox checked=attribut.isStatic}}
+						<label>Attribut statique :</label>
+						{{view Ember.Checkbox checked=attribut.isStatic}}
 					</div>
 					<div class="form-group">
-					<label>Multiplicité minimale :</label>
-					{{input type="text" class="form-control" value=attribut.multiMin maxLength=10}}
+						<label>Multiplicité minimale :</label>
+						{{input type="text" class="form-control" value=attribut.multiplicityMin maxLength=10}}
 					</div>
 					<div class="form-group">
-					<label>Multiplicité maximale :</label>
-					{{input type="text" class="form-control" value=attribut.multiMax maxLength=10}}
+						<label>Multiplicité maximale :</label>
+						{{input type="text" class="form-control" value=attribut.multiplicityMax maxLength=10}}
 					</div>
 				{{/bs-panel}}
 				{{/each}}
-				<br/><button class="btn btn-primary" {{action 'addFieldAttributs'}}>Ajouter un attribut</button>
+				<br/>
+				<button class="btn btn-primary" {{action 'addFieldAttributs'}}>Ajouter un attribut</button>
 			</form>
 		</div>
 	</script>
@@ -338,9 +369,12 @@
                                 <li>
                                 		<a>
                                 			<div class="row">
-                                				<div class="col-md-8 ">{{classDiagram.diagramName}}</div>
+                                				<div class="col-md-6 ">{{classDiagram.diagramName}}</div>
                                 				<div class="col-md-1 colorGreen">
                                 					<i class="glyphicon glyphicon-plus" {{action "createModalAjoutEntit" classDiagram target="controllers.AjoutEntit"}}></i>
+                                				</div>
+                                				<div class="col-md-1 colorRed">
+                                					<i class="glyphicon glyphicon-open" {{action "setCurrentDiagram" classDiagram }}></i>
                                 				</div>
                                 				
                                 				<div class="col-md-1 colorRed">
@@ -426,6 +460,7 @@
     <script src="js/app/models/SequenceDiagram.js"></script>
     <script src="js/app/models/Project.js"></script>
     <script src="js/app/models/Config.js"></script>
+    <script src="js/app/models/Visibility.js"></script>
     <!-- Controllers -->
     <script src="js/app/controllers/controller.js"></script> 
     <!-- Routes -->

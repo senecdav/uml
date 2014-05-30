@@ -50,25 +50,16 @@ App.Entity = DS.Model.extend({
 		
 		var attributes = this.get('attributesList');
 			for(var i = 0; i < attributes.get('length'); i++){
-				if (isDeleted) {
-					attributes.objectAtContent(i).deleteRecord();
-				}
 				attributes.objectAtContent(i).saveAttribute();
 			}
 			
 		var methods = this.get('methodsList');
 			for(var i = 0; i < methods.get('length'); i++){
-				if (isDeleted) {
-						methods.objectAtContent(i).deleteRecord();
-				}
 				methods.objectAtContent(i).saveMethod();
 			}
 			
 		var relations = this.get('relationsList');
 			for(var i = 0; i < relations.get('length'); i++){
-				if (isDeleted) {
-					relations.objectAtContent(i).deleteRecord();
-				}
 				relations.objectAtContent(i).saveRelation();
 			}
 
